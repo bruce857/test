@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style>
+			#page{
+				background:#fff;
+				padding-top:10px;
+			}
+			#page a{
+				display: inline-block;
+				width:80px;
+				height:25px;
+				border-radius: 5px;
+				border-style: solid;
+				border-width: 1px;
+				background-color:aliceblue;
+				margin-right:15px;
+				color:#000;
+				text-align: center;
+				text-decoration: none;;
+			}
+			#page a.active{
+				color:red;
+			}
+		</style>
+		<script>
+			function show(pno){
+				//1.创建xhr异步对象
+				var xhr=new XMLHttpRequest();
+				//4.打开监听，接收响应
+				xhr.onreadystatechange=function(){
+					if(xhr.readyState==4 && xhr.status==200){
+						var r=xhr.responseText;
+						var arr=JSON.parse(r);
+						var pageCount = arr.total;
+						var pageNo = arr.pageNo;
+						if(arr.code == 0){
+                          var msg = document.getElementById("msg");
+						  msg.innerHTML = "未登录，点击下面链接完成登录";
+						  msg.innerHTML += "<a href='pro2_login.html'>请登录</a>"
+						}
+						//结构字符串--------1.表头
+						var htmlStr=`
+							<table width="800" border="1" bordercolor="purple">
+								<tr>
+									<th></th>
+									<th>&nbsp;&nbsp;&nbsp;</th>
+									<th>用户名称</th>
+									<th>用户邮箱</th>
+									<th>联系方式</th>
+									<th>真实姓名</th>
+									<th>用户性别</th>
+									<th>操作</th>
+								</tr>
+						`;
+						//结构字符串--------2.循环
+						arr = arr.data;
+						console.log(arr);
+						for(var i=0;i<arr.length;i++){
+							var sex="保密";
+							if(arr[i].gender==1){
+								sex="男";
+							}else  if(arr[i].gender==0){
+								sex="女";
+							}else{
+								sex="保密";
+							}
+							htmlStr+=`
+								<tr>
+								  <td><input type='checkbox' data-id="${arr[i].uid}"></td>	
+								  <td><img src='../upload/${arr[i].pic ? arr[i].pic:''}' style='width:48px;height:48px'></td>
+								  <td>${arr[i].uname}</td>
+								  <td>${arr[i].email}</td>
+								  <td>${arr[i].phone}</td>
+								  <td>${arr[i].user_name}</td>
+								  <td>${sex}</td>
+								  <td>
+										<a href="pro2_search.html?uid=${arr[i].uid}">修改</a>
+										<a onclick=del(${arr[i].uid})>删除</a>
+									</td>
+								</tr>
+							`;
+							//console.log(arr[i].uid);
+						}
+						//结构字符串--------3.表结束
+						htmlStr+=`</table>`;
+						d1.innerHTML=htmlStr;
+
+
+						//分页条
+						var page = document.getElementById("page");
+                        var html = "";
+						if(pageNo-2>0){
+							html += `<a href='javascript:;'>${pageNo-2}</a>`;	
+						}		
+                        if(pageNo-1>0){
+							html += `<a href='javascript:;'>${pageNo-1}</a>`;	
+						}
+						html += `<a href='javascript:;' class='active'>${pageNo}</a>`;
+						if(pageNo+1<=pageCount){
+							html += `<a href='javascript:;'>${pageNo+1}</a>`;	
+						}
+						if(pageNo+2<=pageCount){
+							html += `<a href='javascript:;'>${pageNo+2}</a>`;	
+						}
+						page.innerHTML = html;
+
+						//var pageList = document.querySelectorAll("#page a");
+						
+						
+
+					}
+				}
+				//2.打开连接，创建请求
+				xhr.open("get","/pro2/v1/list?page="+pno,true);
+				//3.发送请求
+				xhr.send();
+			}
+
+
+			function del(_uid){//不能使用用户手动填写uid
+				//0.获取用户填入的信息
+				//var _uid=uid.value;
+				//1.创建xhr异步对象
+				var xhr=new XMLHttpRequest();
+				//4.接收响应
+				xhr.onreadystatechange=function(){
+					if(xhr.readyState==4 && xhr.status==200){
+						var r=xhr.responseText;
+						if(r==1){alert("删除成功！！！");show();}
+						else{alert("删除是失败");}
+					}
+				}
+				//2.创建请求
+				xhr.open("delete",`/pro/v1/delUser/${_uid}`,true);
+				//3.发送请求
+				xhr.send();
+			}
+
+
+			function all2(){
+				var list = document.querySelectorAll("#d1 input");
+				for(var item of list){
+					item.checked = true;
+				}
+			}
+			function re2(){
+				var list = document.querySelectorAll("#d1 input");
+				for(var item of list){
+					item.checked = !item.checked;
+				}				
+			}
+			function clear2(){
+				var list = document.querySelectorAll("#d1 input");
+				for(var item of list){
+					item.checked = false;
+				}				
+			}
+			function remove2(){
+				console.log(11);
+				var xhr=new XMLHttpRequest();
+				//注意这一句:跨域访问ajax全指它
+				xhr.withCredentials = true;
+				//4.打开监听，接收响应
+				xhr.onreadystatechange=function(){
+					if(xhr.readyState==4 && xhr.status==200){
+						var r=xhr.responseText;
+						var obj = JSON.parse(r);
+						if(obj.code>0){
+                             show(1);
+						}
+					}
+				}
+				//2.创建请求，打开连接
+				xhr.open("post",`/pro2/v1/remove3`,true);
+				xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+    				
+				var html = "";
+				var list = document.querySelectorAll("#d1 input");
+				for(var item of list){
+					if(item.checked){
+						html += item.dataset.id+"_"
+					}
+				}
+				console.log(html);
+				html = html.slice(0,html.length-1)	
+				xhr.send(`ids=${html}`);
+			}
+			function logout(){
+				var xhr=new XMLHttpRequest();
+				//注意这一句:跨域访问ajax全指它
+				xhr.withCredentials = true;
+				//4.打开监听，接收响应
+				xhr.onreadystatechange=function(){
+					if(xhr.readyState==4 && xhr.status==200){
+						var r=xhr.responseText;
+						var obj = JSON.parse(r);
+						if(obj.code>0){
+                             alert("退出成功")
+						}
+					}
+				}
+				//2.创建请求，打开连接
+				xhr.open("get",`/pro2/v1/logout`,true);
+				xhr.send();
+			}
+		</script>
+	</head>
+	<body onload="show(1)">
+		<input type="button" value="全选" onclick="all2()">
+		<input type="button" value="反选" onclick="re2()">
+		<input type="button" value="清空" onclick="clear2()">
+		<input type="button" value="删除选中项" onclick="remove2()">
+		<input type="button" value="退出" onclick="logout()">
+
+		<h1 id="msg"></h1>
+		<div id="d1"></div>
+		<div id="page"></div>
+	</body>
+	<script>
+		
+var page = document.getElementById("page");
+page.onclick = function(e){
+var node = e.target;
+if(node.nodeName === 'A'){
+	 show(node.innerHTML)
+  }
+}
+		
+	</script>
+</html>

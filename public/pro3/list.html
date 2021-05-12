@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>用户列表</h1>
+    <table border="1" width="80%"> 
+        <thead>
+            <tr>
+                <td>编号</td><td>用户名</td><td>操作</td>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <!--
+               <tr><td>1</td><td>dongdong6</td></tr>
+            -->
+        </tbody>
+    </table>
+    <div id="page">   <!--页码条
+        <span>1</span><span>2</span>-->
+    </div>
+    <script>
+        function list(pageNo){
+            //获取元素 表格
+            var tbody = document.getElementById("tbody");
+            //发送请求
+            var xhr = new XMLHttpRequest();
+           xhr.onreadystatechange = function(){//!!!!
+               //5:接受数据
+               if(xhr.readyState == 4 && xhr.status==200){
+                    //console.log(xhr.responseText);
+                    var obj = JSON.parse(xhr.responseText);//将字符串转js对象
+                    console.log(obj.data);
+                    //拼接字符串
+                    var html = "";
+                    for(var item of obj.data){
+                        html += `<tr><td>${item.uid}</td><td>${item.uname}</td><td><a href='#'>上传</a></td></tr>`;
+                    }
+                    tbody.innerHTML = html;
+                    //拼接页码条
+                    var page = document.getElementById("page");
+                    console.log(obj.total);
+                    var p = "";
+                    for(var i=1;i<=obj.total;i++){
+                       p += `<span>${i}</span>`;
+                    }
+                    page.innerHTML = p;
+
+                             //绑定事件,页码 1 2 
+                    var pages = document.querySelectorAll("#page>span");
+                    console.log(pages);
+                    for(var item of pages){
+                        item.onclick = function(){
+                            list(this.innerHTML);
+                        }
+                    }
+               }
+
+           }
+           //3:打开网络连接
+           xhr.open("get","http://127.0.0.1:8080/pro2/v1/list?page="+pageNo,true);//!!!
+           xhr.send();//!!!
+        }
+        window.onload = function(){
+            list(1);
+        }
+    </script>
+</body>
+</html>

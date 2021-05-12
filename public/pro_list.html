@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script>
+			function show(){
+				//1.创建xhr异步对象
+				var xhr=new XMLHttpRequest();
+				//4.打开监听，接收响应
+				xhr.onreadystatechange=function(){
+					if(xhr.readyState==4 && xhr.status==200){
+						var r=xhr.responseText;
+						var arr=JSON.parse(r);
+						//结构字符串--------1.表头
+						var htmlStr=`
+							<table width="800" border="1" bordercolor="purple" align="center">
+								<tr>
+									<th>用户名称</th>
+									<th>用户邮箱</th>
+									<th>联系方式</th>
+									<th>真实姓名</th>
+									<th>用户性别</th>
+									<th>操作</th>
+								</tr>
+						`;
+						//结构字符串--------2.循环
+						for(var i=0;i<arr.length;i++){
+							var sex="保密";
+							if(arr[i].gender==1){
+								sex="男";
+							}else  if(arr[i].gender==0){
+								sex="女";
+							}else{
+								sex="保密";
+							}
+							htmlStr+=`
+								<tr>
+								  <td>${arr[i].uname}</td>
+								  <td>${arr[i].email}</td>
+								  <td>${arr[i].phone}</td>
+								  <td>${arr[i].user_name}</td>
+								  <td>${sex}</td>
+								  <td>
+										<a href="pro_search.html?uid=${arr[i].uid}">修改</a>
+										<a onclick=del(${arr[i].uid})>删除</a>
+									</td>
+								</tr>
+							`;
+							//console.log(arr[i].uid);
+						}
+						//结构字符串--------3.表结束
+						htmlStr+=`</table>`;
+						d1.innerHTML=htmlStr;
+					}
+				}
+				//2.打开连接，创建请求
+				xhr.open("get","/pro/v1/list",true);
+				//3.发送请求
+				xhr.send();
+			}
+			function del(_uid){//不能使用用户手动填写uid
+				//0.获取用户填入的信息
+				//var _uid=uid.value;
+				//1.创建xhr异步对象
+				var xhr=new XMLHttpRequest();
+				//4.接收响应
+				xhr.onreadystatechange=function(){
+					if(xhr.readyState==4 && xhr.status==200){
+						var r=xhr.responseText;
+						if(r==1){alert("删除成功！！！");show();}
+						else{alert("删除是失败");}
+					}
+				}
+				//2.创建请求
+				xhr.open("delete",`/pro/v1/delUser/${_uid}`,true);
+				//3.发送请求
+				xhr.send();
+			}
+		</script>
+	</head>
+	<body onload="show()">
+		<div id="d1"></div>
+	</body>
+</html>

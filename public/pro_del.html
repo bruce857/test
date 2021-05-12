@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script>
+			function del(){
+				//0.获取用户填入的信息
+				var _uid=uid.value;
+				//1.创建xhr异步对象
+				var xhr=new XMLHttpRequest();
+				//4.接收响应
+				xhr.onreadystatechange=function(){
+					if(xhr.readyState==4 && xhr.status==200){
+						var r=xhr.responseText;
+						if(r==1){alert("删除成功！！！")}
+						else{alert("删除是失败");}
+					}
+				}
+				//2.创建请求
+				xhr.open("delete",`/pro/v1/delUser/${_uid}`,true);
+				//3.发送请求
+				xhr.send();
+			}
+		</script>
+	</head>
+	<body>
+		<input type="text" id="uid"><br>
+		<button onclick="del()">删除</button>
+	</body>
+</html>

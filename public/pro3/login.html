@@ -1,0 +1,58 @@
+<html>
+
+
+<h1>用户登录</h1>
+<h1 id="msg" style="color:red"></h1>
+用户名<input type="text" id="uname" value="dingding" placeholder="输入用户名"><span id="unameTip"  ></span><br>
+密码<input type="text" id="upwd" value="123456"  placeholder="输入密码"><span id="upwdTip"></span><br>
+<img src="http://127.0.0.1:8080/pro2/v1/code" id="code2"><br/>
+<input type="text" id="code" value="" >
+<button onclick="login()">登录</button>
+<script>
+       function login(){
+           var reg = /^[a-zA-Z0-9]{3,12}$/;
+           if(!reg.test(uname.value)){
+               msg.innerHTML = "用户名格式不正确";
+               return;
+           }
+           if(!reg.test(upwd.value)){
+             msg.innerHTML = "密码格式不正确";
+             return;
+           }
+           if(!code.value){
+             msg.innerHTML = "验证码格式不正确";
+             return;
+           }
+           //发送AJAX请求完成登录验证功能
+           //异步javascript and xml
+           //ajax 
+           //ajax 特点 
+           //异步请求
+           //局部页面刷新->用户感受好
+           //ajax工作流程:每一步
+           //1:创建AJAX 对象 XMLHttpRequest
+           var xhr = new XMLHttpRequest();
+           //2:绑定事件xhr状态改变事件(接受返回数据)
+           //xhr状态 0 1 2 3 4    0~1 1~2 2~3 3~4 触发四次
+           //0 初始化   1创建对象 2发送  3接收头部  4 接收服务器返回数据完成
+           xhr.onreadystatechange = function(){//!!!!
+               //5:接受数据
+               if(xhr.readyState == 4 && xhr.status==200){
+                   var  s = xhr.responseText;
+                   if(s==-1){
+                       msg.innerHTML = "验证码有误请重试"
+                   }else if(s==0){
+                    msg.innerHTML = "用户名密码有误"
+                   }else{
+                    location.href = "list.html";   
+                   }
+               }
+           }
+           //3:打开网络连接
+           xhr.open("post","http://127.0.0.1:8080/pro2/v1/login",true);//!!!
+           //4:发送请求
+           xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+           xhr.send(`uname=${uname.value}&upwd=${upwd.value}&code=${code.value}`);//!!!
+       }
+</script>
+</html>

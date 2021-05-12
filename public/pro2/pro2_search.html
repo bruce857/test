@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script>
+			function getUser(){
+				//0.获取地址栏中，查询字符串里的_uid
+				//0.1把查询字符串封装成一个对象
+				var obj=new URLSearchParams(location.search);
+				//0.2通过这个对象获取查询字符串中的参数
+				var _uid=obj.get("uid");
+				var uid = document.getElementById("uid");
+				uid.value = _uid;
+
+				//0.获取用户填写的uid
+				// var _uid=uid.value;
+				//1.创建xhr异步对象
+				var xhr=new XMLHttpRequest();
+				//4.接收响应，打开监听
+				xhr.onreadystatechange=function(){
+					if(xhr.readyState==4 && xhr.status==200){
+						var r=xhr.responseText;
+						var obj=JSON.parse(r);
+						uname.value=obj.uname;
+						
+					}
+				}
+				//2.打开连接，创建请求
+				xhr.open("get",`/pro2/v1/search/${_uid}`,true);
+				//3.发送请求
+				xhr.send();
+			}
+		
+		</script>
+	</head>
+	<body onload="getUser()">
+		<form action="/pro2/v1/upload" method="post" enctype="multipart/form-data">
+			<h2>单图上传</h2>
+			<input type="hidden" name="uid" id="uid" value="">
+			<input type="file" name="logo">
+			<input type="submit" value="提交">
+		</form>
+	</body>
+</html>

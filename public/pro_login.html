@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script>
+			function login(){
+				//0.获取用户输入的信息
+				var _uname=uname.value;
+				var _upwd=upwd.value;
+				if(!_uname){
+					alert("用户名不能为空！！");return;
+				}
+				if(!_upwd){
+					alert("密码不能为空！！");return;
+				}
+				//1.创建xhr异步对象
+				var xhr=new XMLHttpRequest();
+				//4.打开监听，接收响应
+				xhr.onreadystatechange=function(){
+					if(xhr.readyState==4 && xhr.status==200){
+						var r=xhr.responseText;
+						if(r==1){
+							alert("登录成功");
+							//js跳转页面的写法
+							location.href="http://127.0.0.1:8080/pro_list.html"
+						}else{
+							alert("用户名或密码错误");
+						}
+					}
+				}
+				//2.创建请求，打开连接
+				xhr.open("get",`/pro/v1/login/${_uname}&${_upwd}`,true);
+				//3.发送请求
+				xhr.send();
+			}
+		</script>
+	</head>
+	<body>
+		<input type="text" id="uname"><br>
+		<input type="text" id="upwd"><br>
+		<button onclick="login()">登录</button>
+	</body>
+</html>
